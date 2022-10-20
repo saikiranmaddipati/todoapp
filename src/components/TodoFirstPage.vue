@@ -18,7 +18,7 @@
           <q-td :props="props">
             <div class="q-pa-md q-gutter-sm">
               <q-btn label="Edit" color="green" @click="alert = true" />
-              <q-btn label="Incomplete" color="green" @click="confirm = true" />
+              <q-btn :label="label" color="green" @click="toggleView" />
               <q-btn label="Delete" color="red" @click="prompt = true" />
 
               <q-dialog
@@ -45,22 +45,6 @@
                 </q-card>
               </q-dialog>
 
-              <q-dialog v-model="confirm" persistent>
-                <q-card>
-                  <q-card-section class="row items-center">
-                    Incomplete
-                  </q-card-section>
-
-                  <q-card-actions align="right">
-                    <q-btn
-                      flat
-                      label="Cancel"
-                      color="primary"
-                      v-close-popup
-                    ></q-btn>
-                  </q-card-actions>
-                </q-card>
-              </q-dialog>
               <div>
                 <q-dialog v-model="prompt" persistent>
                   <q-card style="min-width: 350px">
@@ -101,11 +85,13 @@ export default {
       alert: false,
       prompt: false,
       confirm: false,
+      view: false,
+      label: 'incomplete',
       data: [
         {
           slno: 1,
           toDoItem: 'learn javascript',
-          status: false,
+          status: 'pending',
           actions: ''
         }
       ],
@@ -147,6 +133,17 @@ export default {
     },
     onDelete () {
       this.data.pop()
+    },
+    toggleView () {
+      this.view = !this.view
+
+      if (this.view) {
+        this.label = 'complete'
+        this.data.status = 'Completed'
+      } else {
+        this.label = 'Incomplete'
+        this.data.status = 'Pending'
+      }
     }
   }
 }
