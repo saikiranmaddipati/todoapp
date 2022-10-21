@@ -10,67 +10,86 @@
       />
     </div>
     <div class="button-container row justify-end">
-      <q-btn color="green" label="ADD" class="q-px-md" v-on:click="addItem" />
+      <q-btn color="green" label="ADD" class="q-px-md" @click="addItem" />
     </div>
     <div class="q-pa-md">
-      <q-table :columns="columns" row-key="name" :data="data">
+      <q-table :columns="columns" row-key="name" :data="tasks">
         <template v-slot:body-cell-actions="props">
-          <q-td :props="props">
-            <div class="q-pa-md q-gutter-sm">
-              <q-btn label="Edit" color="green" @click="alert = true" />
-              <q-btn :label="label" color="green" @click="toggleView" />
-              <q-btn label="Delete" color="red" @click="prompt = true" />
+          <div>
+            <q-td :props="props">
+              <div class="q-pa-md q-gutter-sm">
+                <div>
+                  <q-btn
+                    label="Edit"
+                    color="green"
+                    @click="
+                      onEdit(props.pageIndex);
+                      alert = true;
+                    "
+                  />
+                  <q-btn :label="label" color="green" @click="toggleView" />
+                  <q-btn
+                    label="Delete"
+                    color="red"
+                    @click="
+                      onDelete(props.pageIndex);
+                      prompt = true;
+                    "
+                  />
+                  <q-dialog v-model="alert">
+                    <q-card>
+                      <q-card-section style="min-width: 350px">
+                        <div class="text-h6 center">Edit</div>
+                      </q-card-section>
 
-              <q-dialog
-                v-model="alert"
-                v-for="(data, index) in data"
-                :key="index"
-              >
-                <q-card>
-                  <q-card-section style="min-width: 350px">
-                    <div class="text-h6 center">Edit</div>
-                  </q-card-section>
+                      <q-card-section class="q-pt-none">
+                        <input
+                          placeholder="please Enter the Todo"
+                          v-model="todoEditFeild"
+                        />
+                      </q-card-section>
 
-                  <q-card-section class="q-pt-none">
-                    <input
-                      placeholder="please Enter the Todo"
-                      v-model="data.toDoItem"
-                    />
-                  </q-card-section>
+                      <q-card-actions align="right">
+                        <q-btn
+                          flat
+                          label="Save"
+                          color="green"
+                          v-close-popup
+                          @click="updateTodoItem(props.pageIndex)"
+                        />
+                        <q-btn flat label="Cancel" v-close-popup />
+                      </q-card-actions>
+                    </q-card>
+                  </q-dialog>
 
-                  <q-card-actions align="right">
-                    <q-btn flat label="Save" color="green" v-close-popup />
-                    <q-btn flat label="Cancel" v-close-popup />
-                  </q-card-actions>
-                </q-card>
-              </q-dialog>
+                  <div>
+                    <q-dialog v-model="prompt" persistent>
+                      <q-card style="min-width: 350px">
+                        <q-card-section>
+                          <div class="text-h6">Delete</div>
+                        </q-card-section>
 
-              <div>
-                <q-dialog v-model="prompt" persistent>
-                  <q-card style="min-width: 350px">
-                    <q-card-section>
-                      <div class="text-h6">Delete</div>
-                    </q-card-section>
+                        <q-card-section class="q-pt-none" >
+                          Are you sure you want to delete the item?
+                        </q-card-section>
 
-                    <q-card-section class="q-pt-none">
-                      Are you sure you want to delete the item?
-                    </q-card-section>
-
-                    <q-card-actions align="right" class="text-primary">
-                      <q-btn
-                        flat
-                        label="Delete"
-                        color="red"
-                        @click="onDelete()"
-                        v-close-popup
-                      ></q-btn>
-                      <q-btn flat label="cancel" v-close-popup></q-btn>
-                    </q-card-actions>
-                  </q-card>
-                </q-dialog>
+                        <q-card-actions align="right" class="text-primary">
+                          <q-btn
+                            flat
+                            label="Delete"
+                            color="red"
+                            v-close-popup
+                            @click="deleteTodoItem(props.pageIndex)"
+                          ></q-btn>
+                          <q-btn flat label="cancel" v-close-popup></q-btn>
+                        </q-card-actions>
+                      </q-card>
+                    </q-dialog>
+                  </div>
+                </div>
               </div>
-            </div>
-          </q-td>
+            </q-td>
+          </div>
         </template>
       </q-table>
     </div>
@@ -82,19 +101,15 @@ export default {
   data () {
     return {
       newItem: '',
+      tasks: [],
       alert: false,
       prompt: false,
       confirm: false,
       view: false,
       label: 'incomplete',
-      data: [
-        {
-          slno: 1,
-          toDoItem: 'learn javascript',
-          status: 'pending',
-          actions: ''
-        }
-      ],
+      todoEditFeild: '',
+      deleteTodoIndex: '',
+      todoItemIndex: '',
       columns: [
         {
           name: 'name',
@@ -107,7 +122,7 @@ export default {
           name: 'ToDo item',
           align: 'center',
           label: 'ToDo Item',
-          field: 'toDoItem',
+          field: 'todoItem',
           sortable: true
         },
         {
@@ -117,32 +132,43 @@ export default {
           field: 'status',
           sortable: true
         },
-        { name: 'actions', align: 'center', label: 'Action' }
+        { name: 'actions', align: 'left', label: 'Action' }
       ]
     }
   },
   methods: {
     addItem () {
-      this.data.push({
-        slno: this.data.length + 1,
-        toDoItem: this.newItem,
-        status: false,
+      this.tasks.push({
+        slno: this.tasks.length + 1,
+        todoItem: this.newItem,
+        status: 'pending',
         actions: ''
       })
       this.newItem = ''
     },
-    onDelete () {
-      this.data.pop()
+    onEdit (index) {
+      const todoItem = this.tasks[index].todoItem
+      this.todoEditFeild = todoItem
+      this.todoItemIndex = index
+    },
+    updateTodoItem (index) {
+      this.tasks[this.todoItemIndex].todoItem = this.todoEditFeild
+    },
+    onDelete (index) {
+      this.deleteTodoIndex = index
+    },
+    deleteTodoItem (index) {
+      this.tasks.splice(this.deleteTodoIndex, 1)
     },
     toggleView () {
       this.view = !this.view
 
       if (this.view) {
         this.label = 'complete'
-        this.data.status = 'Completed'
+        this.tasks.status = 'Completed'
       } else {
         this.label = 'Incomplete'
-        this.data.status = 'Pending'
+        this.tasks.status = 'Pending'
       }
     }
   }
