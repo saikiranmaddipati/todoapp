@@ -27,7 +27,7 @@
                       alert = true;
                     "
                   />
-                  <q-btn :label="label" color="green" @click="toggleView" />
+                  <q-btn :label="label" color="green" @click="toggleView(props.pageIndex)" />
                   <q-btn
                     label="Delete"
                     color="red"
@@ -106,7 +106,7 @@ export default {
       prompt: false,
       confirm: false,
       view: false,
-      label: 'incomplete',
+      label: 'Incomplete',
       todoEditFeild: '',
       deleteTodoIndex: '',
       todoItemIndex: '',
@@ -160,15 +160,15 @@ export default {
     deleteTodoItem (index) {
       this.tasks.splice(this.deleteTodoIndex, 1)
     },
-    toggleView () {
-      this.view = !this.view
-
-      if (this.view) {
+    toggleView (index) {
+      const todoItem = this.tasks[index].status
+      console.log(this.tasks[index].status)
+      if (todoItem === 'pending') {
         this.label = 'complete'
-        this.tasks.status = 'Completed'
+        this.tasks[index].status = 'Completed'
       } else {
         this.label = 'Incomplete'
-        this.tasks.status = 'Pending'
+        this.tasks[index].status = 'Pending'
       }
     }
   }
