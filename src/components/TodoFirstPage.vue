@@ -27,7 +27,11 @@
                       alert = true;
                     "
                   />
-                  <q-btn :label="label" color="green" @click="toggleView(props.pageIndex)" />
+                  <q-btn
+                    :label="label"
+                    color="green"
+                    @click="toggleView(props.pageIndex)"
+                  />
                   <q-btn
                     label="Delete"
                     color="red"
@@ -62,30 +66,28 @@
                     </q-card>
                   </q-dialog>
 
-                  <div>
-                    <q-dialog v-model="prompt" persistent>
-                      <q-card style="min-width: 350px">
-                        <q-card-section>
-                          <div class="text-h6">Delete</div>
-                        </q-card-section>
+                  <q-dialog v-model="prompt" persistent>
+                    <q-card style="min-width: 350px">
+                      <q-card-section>
+                        <div class="text-h6">Delete</div>
+                      </q-card-section>
 
-                        <q-card-section class="q-pt-none" >
-                          Are you sure you want to delete the item?
-                        </q-card-section>
+                      <q-card-section class="q-pt-none">
+                        Are you sure you want to delete the item?
+                      </q-card-section>
 
-                        <q-card-actions align="right" class="text-primary">
-                          <q-btn
-                            flat
-                            label="Delete"
-                            color="red"
-                            v-close-popup
-                            @click="deleteTodoItem(props.pageIndex)"
-                          ></q-btn>
-                          <q-btn flat label="cancel" v-close-popup></q-btn>
-                        </q-card-actions>
-                      </q-card>
-                    </q-dialog>
-                  </div>
+                      <q-card-actions align="right" class="text-primary">
+                        <q-btn
+                          flat
+                          label="Delete"
+                          color="red"
+                          @click="deleteTodoItem(props.pageIndex)"
+                          v-close-popup="0"
+                        ></q-btn>
+                        <q-btn flat label="cancel" v-close-popup></q-btn>
+                      </q-card-actions>
+                    </q-card>
+                  </q-dialog>
                 </div>
               </div>
             </q-td>
