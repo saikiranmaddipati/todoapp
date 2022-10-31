@@ -18,7 +18,7 @@
           <div>
             <q-td :props="props">
               <div class="q-pa-md q-gutter-sm">
-                <div>
+                <div class="q-gutter-sm">
                   <q-btn
                     label="Edit"
                     color="green"
